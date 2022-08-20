@@ -89,6 +89,17 @@ def cut_mergins(img_reference , img_inspected, move_vector = (0,0)):
 
     return img_reference, img_inspected
 
+def cut_all_mergins(imgs, move_vectors = None):
+    res = []
+    if move_vectors is None:
+        return imgs
+
+    case_num = len(imgs) 
+    for case in range(case_num):
+        cutted_imgs = cut_mergins(imgs[case][0], imgs[case][1], move_vectors[case])
+        res.append([cutted_imgs[0], cutted_imgs[1]])
+    return res
+
 def get_max_vector(pol_mult):
     max_value = pol_mult[0][0]
     max_point = (0,0)
