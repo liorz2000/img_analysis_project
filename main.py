@@ -40,7 +40,7 @@ def plot_imgs_matrix(imgs_mat, fs = (8,6)):
 
 def plot_imgs_arr(imgs_arr, fs = (8,3)):
     plt.figure(figsize = fs, dpi=80)
-    rows = len(imgs_mat)
+    rows = len(imgs_arr)
     for i in range(rows):
         plt.subplot(1,rows,i+1)
         plt.imshow(imgs_arr[i], cmap = 'gray')
@@ -67,6 +67,28 @@ def get_mults(imgs):
         res.append(get_polynom_mult(case[0] , case[1]))
     return res
 
+def cut_mergins(img_reference , img_inspected, move_vector = (0,0)):
+    row_move = move_vector[0]
+    col_move = move_vector[1]
+
+    # row cut
+    if row_move > 0:
+        img_reference = img_reference[:-row_move,]
+        img_inspected = img_inspected[row_move:,]
+    elif row_move < 0:
+        img_reference = img_reference[-row_move:,]
+        img_inspected = img_inspected[:row_move,]
+
+    # colum cut
+    if col_move > 0:
+        img_reference = img_reference[:,:-col_move]
+        img_inspected = img_inspected[:,col_move:]
+    elif col_move < 0:
+        img_reference = img_reference[:,-col_move:]
+        img_inspected = img_inspected[:,:col_move]
+
+    return img_reference, img_inspected
+
 def get_max_vector(pol_mult):
     max_value = pol_mult[0][0]
     max_point = (0,0)
@@ -81,3 +103,9 @@ def get_max_vector(pol_mult):
     center_col = int(pol_mult.shape[1]/2)+1
     
     return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
+
+def get_max_vectors(pol_mults):
+    res = []
+    for pol_mult in pol_mults:
+        res.append(get_max_vector(pol_mult)[1])
+    return res
