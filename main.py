@@ -15,10 +15,10 @@ ins = "inspected"
 ref = "reference"
 
 def get_imgs():
-	"""
-	Get the 6 images as 3X2 matrix.
-	Each row for each case.	
-	"""
+    """
+    Get the 6 images as 3X2 matrix.
+    Each row for each case.
+    """
     res = []
     for i in range(3):
         res.append([])
@@ -27,6 +27,24 @@ def get_imgs():
         res[-1].append(np.array(cv2.imread(path_ref, cv2.IMREAD_GRAYSCALE)))
         res[-1].append(np.array(cv2.imread(path_ins, cv2.IMREAD_GRAYSCALE)))
     return res
+
+def plot_imgs_matrix(imgs_mat, fs = (8,6)):
+    plt.figure(figsize = fs, dpi=80)
+    rows = len(imgs_mat)
+    cols = len(imgs_mat[0])
+    for i in range(rows):
+        for j in range(cols):
+            plt.subplot(cols,rows,i+rows*j+1)
+            plt.imshow(imgs_mat[i][j], cmap = 'gray')
+    plt.show()
+
+def plot_imgs_arr(imgs_arr, fs = (8,3)):
+    plt.figure(figsize = fs, dpi=80)
+    rows = len(imgs_mat)
+    for i in range(rows):
+        plt.subplot(1,rows,i+1)
+        plt.imshow(imgs_arr[i], cmap = 'gray')
+    plt.show()
 
 def get_polynom_mult(img_reference , img_inspected):
     """
@@ -42,6 +60,12 @@ def get_polynom_mult(img_reference , img_inspected):
     num_to_normalize = (2*rows - 1)*(2*colums - 1)
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
+
+def get_mults(imgs):
+    res = []
+    for case in imgs:
+        res.append(get_polynom_mult(case[0] , case[1]))
+    return res
 
 def get_max_vector(pol_mult):
     max_value = pol_mult[0][0]
