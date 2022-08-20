@@ -21,3 +21,18 @@ def get_polynom_mult(img_reference , img_inspected):
     num_to_normalize = (2*rows - 1)*(2*colums - 1)
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
+
+def get_max_vector(pol_mult):
+    max_value = pol_mult[0][0]
+    max_point = (0,0)
+    
+    for row in range(pol_mult.shape[0]):
+        for col in range(pol_mult.shape[1]):
+            if max_value < pol_mult[row][col]:
+                max_value = pol_mult[row][col]
+                max_point = (row, col)
+    
+    center_row = int(pol_mult.shape[0]/2)+1
+    center_col = int(pol_mult.shape[1]/2)+1
+    
+    return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
