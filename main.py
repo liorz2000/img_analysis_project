@@ -46,25 +46,29 @@ def plot_imgs_arr(imgs_arr, fs = (8,3)):
         plt.imshow(imgs_arr[i], cmap = 'gray')
     plt.show()
 
-def get_polynom_mult(img_reference , img_inspected):
+def get_polynom_mult(img_reference , img_inspected, is_pad = False):
     """
     Inputs must be 2 numpy arrays represent gray-scale 0-255
     """
     img_inspected = img_inspected[::-1,::-1]
     rows, colums = img_reference.shape
-    img_reference = np.lib.pad(img_reference,((0,rows-1),(0,colums-1)))
-    img_inspected = np.lib.pad(img_inspected,((0,rows-1),(0,colums-1)))
+    if is_pad:
+        img_reference = np.lib.pad(img_reference,((0,rows-1),(0,colums-1)))
+        img_inspected = np.lib.pad(img_inspected,((0,rows-1),(0,colums-1)))
     fft_img_reference = np.fft.fft2(img_reference)
     fft_img_inspected = np.fft.fft2(img_inspected)
     fft_pol_mult = fft_img_reference * fft_img_inspected
-    num_to_normalize = (2*rows - 1)*(2*colums - 1)
+    if is_pad:
+        num_to_normalize = (2*rows - 1)*(2*colums - 1)
+    else:
+        num_to_normalize = rows * colums
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
 
-def get_mults(imgs):
+def get_mults(imgs, is_pad = False):
     res = []
     for case in imgs:
-        res.append(get_polynom_mult(case[0] , case[1]))
+        res.append(get_polynom_mult(case[0] , case[1], is_pad))
     return res
 
 def cut_mergins(img_reference , img_inspected, move_vector = (0,0)):
@@ -100,7 +104,13 @@ def cut_all_mergins(imgs, move_vectors = None):
         res.append([cutted_imgs[0], cutted_imgs[1]])
     return res
 
-def get_max_vector(pol_mult):
+def small_modulo(num, mod):
+    num = num%mod
+    if 2*num <= mod:
+        return num
+    return num - mod
+
+def get_max_vector(pol_mult, is_pad = False):
     max_value = pol_mult[0][0]
     max_point = (0,0)
     
@@ -109,14 +119,26 @@ def get_max_vector(pol_mult):
             if max_value < pol_mult[row][col]:
                 max_value = pol_mult[row][col]
                 max_point = (row, col)
+    if is_pad:
+        center_row = int(pol_mult.shape[0]/2)+1
+        center_col = int(pol_mult.shape[1]/2)+1
+        return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
     
-    center_row = int(pol_mult.shape[0]/2)+1
-    center_col = int(pol_mult.shape[1]/2)+1
-    
-    return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
+    small_row_diff = small_modulo(max_point[0],pol_mult.shape[0])
+    small_col_diff = small_modulo(max_point[1],pol_mult.shape[1])
+    return max_value, (small_row_diff ,small_col_diff)
 
-def get_max_vectors(pol_mults):
+def get_max_vectors(pol_mults, is_pad = False):
     res = []
     for pol_mult in pol_mults:
-        res.append(get_max_vector(pol_mult)[1])
+        res.append(get_max_vector(pol_mult, is_pad)[1])
+    return res
+
+def sub_imgs(img_reference , img_inspected):
+    return abs(img_reference - img_inspected)
+
+def sub_all_imgs(imgs):
+    res = []
+    for case in imgs:
+        res.append(sub_imgs(case[0] , case[1]))
     return res
