@@ -65,6 +65,36 @@ def get_polynom_mult(img_reference , img_inspected, is_pad = False):
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
 
+def calc_muls_of_expectations(imgs_mat):
+    res = []
+    for case in imgs_mat:
+        exp0 = np.mean(case[0])
+        exp1 = np.mean(case[1])
+        res.append(exp0 * exp1)
+    return res
+
+def add_margin_normalization_to_padded_mult(mult, mul_of_expectations):
+    """
+    mul_of_expectations is:
+    the expectection of pixel in ref *
+    *  the expectection of pixel in ins
+    """
+    center_row = int(pol_mult.shape[0]/2)
+    center_col = int(pol_mult.shape[1]/2)
+
+    rows_num = center_row + 1
+    cols_num = center_row + 1
+
+    original_area = rows_num * cols_num
+    for row in pol_mult.shape[0]:
+        for col in pol_mult.shape[1]:
+            row_diff = abs(center_row - row)
+            col_diff = abs(center_col - col)
+            common_area = (rows_num - row_diff) * (cols_num - col_diff)
+            num_lost_pixels = original_area - common_area
+            mult[row][col] += mul_of_expectations * num_lost_pixels
+    return mult
+
 def get_mults(imgs, is_pad = False):
     res = []
     for case in imgs:
