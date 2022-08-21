@@ -64,7 +64,7 @@ def get_polynom_mult(img_reference , img_inspected, is_pad = False):
         num_to_normalize = rows * colums
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
-    
+
 def get_mults(imgs, is_pad = False):
     res = []
     for case in imgs:
@@ -120,8 +120,8 @@ def get_max_vector(pol_mult, is_pad = False):
                 max_value = pol_mult[row][col]
                 max_point = (row, col)
     if is_pad:
-        center_row = int(pol_mult.shape[0]/2)+1
-        center_col = int(pol_mult.shape[1]/2)+1
+        center_row = int(pol_mult.shape[0]/2)
+        center_col = int(pol_mult.shape[1]/2)
         return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
     
     small_row_diff = small_modulo(max_point[0],pol_mult.shape[0])
