@@ -64,7 +64,7 @@ def get_polynom_mult(img_reference , img_inspected, is_pad = False):
         num_to_normalize = rows * colums
     pol_mult = np.real(np.fft.fft2(fft_pol_mult)/num_to_normalize)
     return pol_mult
-
+    
 def get_mults(imgs, is_pad = False):
     res = []
     for case in imgs:
@@ -141,4 +141,21 @@ def sub_all_imgs(imgs):
     res = []
     for case in imgs:
         res.append(sub_imgs(case[0] , case[1]))
+    return res
+
+def plot_0_pixel_as_255_for_proportion(img_arr):
+    for img in img_arr:
+        img[0][0] =255
+    plot_imgs_arr(imgs_arr)
+
+def find_correlation(img_reference, img_inspected):
+    ref = img_reference
+    ins = img_inspected
+    numeretor = np.mean((ref - np.mean(ref))*(ins - np.mean(ins)))
+    return numeretor / (np.std(ref) * np.std(ins))
+
+def find_correlations(img_mat):
+    res = []
+    for case in img_mat:
+        res.append(find_correlation(case[0], case[1]))
     return res
