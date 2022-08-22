@@ -1,6 +1,6 @@
 from help_funcs import *
 
-def get_dict_of_the_proccess(move_search = "normal"):
+def get_dict_of_the_proccess(move_search = "normal", imgs = "the_three_given"):
 	"""
 	type value need to be one of those:
 		"normal": just do furie
@@ -10,7 +10,8 @@ def get_dict_of_the_proccess(move_search = "normal"):
 	if move_search not in ["normal", "pad" , "pad_and_add"]:
 		raise Exception("No valid move_search")
 
-	imgs = get_imgs()
+	if imgs == "the_three_given":
+		imgs = get_imgs()
 	if move_search == "normal":
 		mults = get_mults(imgs)
 		move_vectors = get_max_vectors(mults)
