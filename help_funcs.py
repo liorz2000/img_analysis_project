@@ -14,6 +14,13 @@ paths = [PATH_C1,PATH_C2,PATH_C3]
 ins = "inspected"
 ref = "reference"
 
+neighbor_vectors_3x3 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
+neighbor_vectors_2X2 = [[-1,-1], [-1,0], [0,-1], [0,0]]
+neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
+neighborhoods = {"3x3": neighbor_vectors_3x3, "2x2":neighbor_vectors_2X2, "plus": neighbor_vectors_plus}
+for name in neighborhoods:
+	neighborhoods[name] = np.array(neighborhoods[name])
+
 def get_imgs():
     """
     Get the 6 images as 3X2 matrix.
@@ -159,6 +166,7 @@ def get_max_vector(pol_mult, is_pad = False):
     if is_pad:
         center_row = int(pol_mult.shape[0]/2)
         center_col = int(pol_mult.shape[1]/2)
+        print(pol_mult) # delete later
         return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
     
     small_row_diff = small_modulo(max_point[0],pol_mult.shape[0])
@@ -196,3 +204,7 @@ def find_correlations(img_mat):
     for case in img_mat:
         res.append(find_correlation(case[0], case[1]))
     return res
+
+# def neighborhood_mean(img, neighborhood):
+# 	nrow, ncol = img.shape
+# 	for row in range(nr)
