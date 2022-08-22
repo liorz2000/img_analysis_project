@@ -79,21 +79,28 @@ def add_margin_normalization_to_padded_mult(mult, mul_of_expectations):
     the expectection of pixel in ref *
     *  the expectection of pixel in ins
     """
-    center_row = int(pol_mult.shape[0]/2)
-    center_col = int(pol_mult.shape[1]/2)
+    center_row = int(mult.shape[0]/2)
+    center_col = int(mult.shape[1]/2)
 
     rows_num = center_row + 1
     cols_num = center_row + 1
 
     original_area = rows_num * cols_num
-    for row in pol_mult.shape[0]:
-        for col in pol_mult.shape[1]:
+    for row in range(mult.shape[0]):
+        for col in range(mult.shape[1]):
             row_diff = abs(center_row - row)
             col_diff = abs(center_col - col)
             common_area = (rows_num - row_diff) * (cols_num - col_diff)
             num_lost_pixels = original_area - common_area
             mult[row][col] += mul_of_expectations * num_lost_pixels
     return mult
+
+def add_margin_normalization_to_padded_mults(mults, exp_muls):
+	res = []
+	length = len(mults)
+	for i in range(length):
+		res.append(add_margin_normalization_to_padded_mult(mults[i], exp_muls[i]))
+	return res
 
 def get_mults(imgs, is_pad = False):
     res = []
