@@ -19,7 +19,7 @@ neighbor_vectors_2X2 = [[-1,-1], [-1,0], [0,-1], [0,0]]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
 neighborhoods = {"3x3": neighbor_vectors_3x3, "2x2":neighbor_vectors_2X2, "plus": neighbor_vectors_plus}
 for name in neighborhoods:
-	neighborhoods[name] = np.array(neighborhoods[name])
+    neighborhoods[name] = np.array(neighborhoods[name])
 
 def get_imgs():
     """
@@ -86,11 +86,11 @@ def add_margin_normalization_to_padded_mult(mult, mul_of_expectations):
     the expectection of pixel in ref *
     *  the expectection of pixel in ins
     """
-    center_row = int(mult.shape[0]/2)
-    center_col = int(mult.shape[1]/2)
+    center_row = int(mult.shape[0]/2) + 1
+    center_col = int(mult.shape[1]/2) + 1
 
-    rows_num = center_row + 1
-    cols_num = center_row + 1
+    rows_num = center_row
+    cols_num = center_row
 
     original_area = rows_num * cols_num
     for row in range(mult.shape[0]):
@@ -103,11 +103,11 @@ def add_margin_normalization_to_padded_mult(mult, mul_of_expectations):
     return mult
 
 def add_margin_normalization_to_padded_mults(mults, exp_muls):
-	res = []
-	length = len(mults)
-	for i in range(length):
-		res.append(add_margin_normalization_to_padded_mult(mults[i], exp_muls[i]))
-	return res
+    res = []
+    length = len(mults)
+    for i in range(length):
+        res.append(add_margin_normalization_to_padded_mult(mults[i], exp_muls[i]))
+    return res
 
 def get_mults(imgs, is_pad = False):
     res = []
@@ -116,6 +116,9 @@ def get_mults(imgs, is_pad = False):
     return res
 
 def cut_mergins(img_reference , img_inspected, move_vector = (0,0)):
+    if move_vector == "Failed":
+        return "Failed"
+
     row_move = move_vector[0]
     col_move = move_vector[1]
 
@@ -145,7 +148,10 @@ def cut_all_mergins(imgs, move_vectors = None):
     case_num = len(imgs) 
     for case in range(case_num):
         cutted_imgs = cut_mergins(imgs[case][0], imgs[case][1], move_vectors[case])
-        res.append([cutted_imgs[0], cutted_imgs[1]])
+        if cutted_imgs == "Failed":
+            res.append("Failed")
+        else:
+            res.append([cutted_imgs[0], cutted_imgs[1]])
     return res
 
 def small_modulo(num, mod):
@@ -164,19 +170,27 @@ def get_max_vector(pol_mult, is_pad = False):
                 max_value = pol_mult[row][col]
                 max_point = (row, col)
     if is_pad:
-        center_row = int(pol_mult.shape[0]/2)
-        center_col = int(pol_mult.shape[1]/2)
-        print(pol_mult) # delete later
-        return max_value, (max_point[0] - center_row ,max_point[1] - center_col)
+        center_row = int(pol_mult.shape[0]/2) + 1
+        center_col = int(pol_mult.shape[1]/2) + 1
+        diff_row = max_point[0] - center_row
+        diff_col = max_point[1] - center_col
+        if abs(diff_row) > pol_mult.shape[0]/4 or abs(diff_col) > pol_mult.shape[1]/4:
+            print("Failed add_and_padd return string Failed")
+            return "Failed"
+        return max_value, (diff_row ,diff_col)
     
     small_row_diff = small_modulo(max_point[0],pol_mult.shape[0])
     small_col_diff = small_modulo(max_point[1],pol_mult.shape[1])
-    return max_value, (small_row_diff ,small_col_diff)
+    return max_value, (small_row_diff - 1,small_col_diff - 1)
 
 def get_max_vectors(pol_mults, is_pad = False):
     res = []
     for pol_mult in pol_mults:
-        res.append(get_max_vector(pol_mult, is_pad)[1])
+        gmv = get_max_vector(pol_mult, is_pad)
+        if gmv == "Failed":
+            res.append("Failed")
+        else:
+            res.append(gmv[1])
     return res
 
 def sub_imgs(img_reference , img_inspected):
@@ -185,7 +199,10 @@ def sub_imgs(img_reference , img_inspected):
 def sub_all_imgs(imgs):
     res = []
     for case in imgs:
-        res.append(sub_imgs(case[0] , case[1]))
+        if case == "Failed":
+            res.append("Failed")
+        else:
+            res.append(sub_imgs(case[0] , case[1]))
     return res
 
 def plot_0_pixel_as_255_for_proportion(img_arr):
@@ -202,9 +219,12 @@ def find_correlation(img_reference, img_inspected):
 def find_correlations(img_mat):
     res = []
     for case in img_mat:
-        res.append(find_correlation(case[0], case[1]))
+        if case == "Failed":
+            res.append("Failed")
+        else:
+            res.append(find_correlation(case[0], case[1]))
     return res
 
 # def neighborhood_mean(img, neighborhood):
-# 	nrow, ncol = img.shape
-# 	for row in range(nr)
+#   nrow, ncol = img.shape
+#   for row in range(nr)
