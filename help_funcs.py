@@ -53,6 +53,11 @@ def plot_imgs_arr(imgs_arr, fs = (8,3)):
         plt.imshow(imgs_arr[i], cmap = 'gray')
     plt.show()
 
+def plot_img(img, fs = (4,3)):
+    plt.figure(figsize = fs, dpi=80)
+    plt.imshow(img[i], cmap = 'gray')
+    plt.show()
+
 def get_polynom_mult(img_reference , img_inspected, is_pad = False):
     """
     Inputs must be 2 numpy arrays represent gray-scale 0-255
@@ -239,5 +244,9 @@ def neighborhood_mean(img, neighborhood):
     return numerator/denumerator
 
 
-
+def cut_func(img, cuttof):
+    for row in img.shape[0]:
+        for col in img.shape[1]:
+            img[row][col] = int(img[row][col]>cuttof)
+    return img 
 
