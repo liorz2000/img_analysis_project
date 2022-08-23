@@ -208,7 +208,7 @@ def sub_all_imgs(imgs):
 def plot_0_pixel_as_255_for_proportion(img_arr):
     for img in img_arr:
         img[0][0] =255
-    plot_imgs_arr(imgs_arr)
+    plot_imgs_arr(img_arr)
 
 def find_correlation(img_reference, img_inspected):
     ref = img_reference
