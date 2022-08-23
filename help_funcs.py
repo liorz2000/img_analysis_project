@@ -225,6 +225,19 @@ def find_correlations(img_mat):
             res.append(find_correlation(case[0], case[1]))
     return res
 
-# def neighborhood_mean(img, neighborhood):
-#   nrow, ncol = img.shape
-#   for row in range(nr)
+def neighborhood_mean(img, neighborhood):
+    nrow, ncol = img.shape
+    numerator = np.zeros((nrow, ncol))
+    denumerator = np.zeros((nrow, ncol))
+    for row in range(nrow):
+        for col in range(ncol):
+            for neighbor in neighborhood:
+                if 0<=row+neighbor[0]<nrow:
+                    if 0<=col+neighbor[1]<ncol:
+                        denumerator[row][col] += 1
+                        numerator[row][col] += img[row+neighbor[0]][col+neighbor[1]]
+    return numerator/denumerator
+
+
+
+
