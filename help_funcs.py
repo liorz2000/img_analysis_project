@@ -7,9 +7,9 @@ import numpy as np
 import cv2
 import matplotlib.pyplot as plt
 
-PATH_C1 = "../images/defective_examples/case1_{}_image.tif"
-PATH_C2 = "../images/defective_examples/case2_{}_image.tif"
-PATH_C3 = "../images/non_defective_examples/case3_{}_image.tif"
+PATH_C1 = "images/defective_examples/case1_{}_image.tif"
+PATH_C2 = "images/defective_examples/case2_{}_image.tif"
+PATH_C3 = "images/non_defective_examples/case3_{}_image.tif"
 paths = [PATH_C1,PATH_C2,PATH_C3]
 ins = "inspected"
 ref = "reference"
@@ -19,9 +19,9 @@ neighbor_vectors_2X2 = [[-1,-1], [-1,0], [0,-1], [0,0]]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
 neighborhoods = {"3x3": neighbor_vectors_3x3, "2x2":neighbor_vectors_2X2, "plus": neighbor_vectors_plus}
 for name in neighborhoods:
-    neighborhoods[name] = np.array(neighborhoods[name])
+    neighborhoods[name] = np.array(neighborhoods[name], dtype = np.int32)
 
-def get_imgs():
+def get_imgs(prev_path = "../"):
     """
     Get the 6 images as 3X2 matrix.
     Each row for each case.
@@ -29,10 +29,12 @@ def get_imgs():
     res = []
     for i in range(3):
         res.append([])
-        path_ins = paths[i].format(ins)
         path_ref = paths[i].format(ref)
-        res[-1].append(np.array(cv2.imread(path_ref, cv2.IMREAD_GRAYSCALE)))
-        res[-1].append(np.array(cv2.imread(path_ins, cv2.IMREAD_GRAYSCALE)))
+        path_ins = paths[i].format(ins)
+        ref_img = np.array(cv2.imread(prev_path+path_ref, cv2.IMREAD_GRAYSCALE), dtype = np.int32)
+        ins_img = np.array(cv2.imread(prev_path+path_ins, cv2.IMREAD_GRAYSCALE), dtype = np.int32)
+        res[-1].append(ref_img)
+        res[-1].append(ins_img)
     return res
 
 def plot_imgs_matrix(imgs_mat, fs = (8,6)):
@@ -55,7 +57,7 @@ def plot_imgs_arr(imgs_arr, fs = (8,3)):
 
 def plot_img(img, fs = (4,3)):
     plt.figure(figsize = fs, dpi=80)
-    plt.imshow(img[i], cmap = 'gray')
+    plt.imshow(img, cmap = 'gray')
     plt.show()
 
 def get_polynom_mult(img_reference , img_inspected, is_pad = False):
@@ -198,23 +200,6 @@ def get_max_vectors(pol_mults, is_pad = False):
             res.append(gmv[1])
     return res
 
-def sub_imgs(img_reference , img_inspected):
-    return abs(img_reference - img_inspected)
-
-def sub_all_imgs(imgs):
-    res = []
-    for case in imgs:
-        if case == "Failed":
-            res.append("Failed")
-        else:
-            res.append(sub_imgs(case[0] , case[1]))
-    return res
-
-def plot_0_pixel_as_255_for_proportion(img_arr):
-    for img in img_arr:
-        img[0][0] =255
-    plot_imgs_arr(img_arr)
-
 def find_correlation(img_reference, img_inspected):
     ref = img_reference
     ins = img_inspected
@@ -230,6 +215,40 @@ def find_correlations(img_mat):
             res.append(find_correlation(case[0], case[1]))
     return res
 
+########################################################
+                #seperation funcs
+########################################################
+
+def flatt_and_hist_mat(mat, hole_num):
+    arr = np.ravel(mat)
+    plt.hist(arr, hole_num)
+    plt.show()
+    return np.mean(arr) , np.std(arr)
+
+def hist_sub(img_reference , img_inspected, hole_num, do_abs = True):
+    sub = sub_imgs(img_reference , img_inspected , do_abs)
+    return flatt_and_hist_mat(sub, hole_num)
+
+def sub_imgs(img_reference , img_inspected, do_abs = True):
+    sub = img_reference - img_inspected
+    if do_abs:
+        return abs(sub)
+    return sub
+
+def sub_all_imgs(imgs, do_abs = True):
+    res = []
+    for case in imgs:
+        if case == "Failed":
+            res.append("Failed")
+        else:
+            res.append(sub_imgs(case[0] , case[1], do_abs))
+    return res
+
+def plot_0_pixel_as_255_for_proportion(img_arr):
+    for img in img_arr:
+        img[0][0] =255
+    plot_imgs_arr(img_arr)
+
 def neighborhood_mean(img, neighborhood):
     nrow, ncol = img.shape
     numerator = np.zeros((nrow, ncol))
@@ -244,9 +263,10 @@ def neighborhood_mean(img, neighborhood):
     return numerator/denumerator
 
 
-def cut_func(img, cuttof):
-    for row in img.shape[0]:
-        for col in img.shape[1]:
-            img[row][col] = int(img[row][col]>cuttof)
-    return img 
+def separation_func(img, cuttof):
+    img_copy = np.copy(img)
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
+            img_copy[row][col] = int(img_copy[row][col]>cuttof)
+    return img_copy
 
