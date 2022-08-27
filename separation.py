@@ -1,13 +1,22 @@
+import sys
+cv2_directory = 'C:\\python\\python39\\lib\\site-packages'
+if cv2_directory not in sys.path:
+    sys.path.append(cv2_directory)
+import scipy
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+
 neighbor_vectors_3x3 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
 neighbor_weights_3X3 = [1,1,1, 1,1,1, 1,1,1]
 neighbor_vectors_2X2 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
-neighbor_weights_2X2 = [0.25,0.5,0.25, 0.5,1,0.5, 0.25,0.5,0.25]
+neighbor_weights_2X2 = [1,2,1, 2,4,2, 1,2,1]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
 neighbor_weights_plus = [1, 1, 1, 1,1]
 
-NEIGHBORHOODS = {"3x3": (neighbor_vectors_3x3,neighbor_weights_3X3)\
-"2x2":(neighbor_vectors_2X2,neighbor_weights_2X2),\
-"plus": (neighbor_vectors_plus,neighbor_weights_plus)}
+NEIGHBORHOODS = {"3x3": [neighbor_vectors_3x3,neighbor_weights_3X3],\
+"2x2":[neighbor_vectors_2X2,neighbor_weights_2X2],\
+"plus": [neighbor_vectors_plus,neighbor_weights_plus]}
 
 for name in NEIGHBORHOODS:
     NEIGHBORHOODS[name][0] = np.array(NEIGHBORHOODS[name][0], dtype = np.int32)
@@ -57,6 +66,45 @@ def neighborhood_mean_old(img, neighborhood_key):
                         numerator[row][col] += img[row+neighbor[0]][col+neighbor[1]]
     return numerator/denumerator
 
+####################################################################
+						# neighborhood_mean_fft #
+####################################################################
+def rotate(a, how_much):
+    a_copy = np.copy(a)
+    for row in range(a.shape[0]):
+        for col in range(a.shape[1]):
+            a_copy[row,col] = a[(row+how_much)%a.shape[0], (col+how_much)%a.shape[1]]
+    return a_copy
+
+def mult_a_b(a,b):
+    a = a[::-1,::-1]
+    a = rotate(a, -1)
+    b = b[::-1,::-1]
+    b = rotate(b, -1)
+    
+    a = np.fft.fft2(a)
+    b = np.fft.fft2(b)
+    c = a*b
+    c= np.fft.fft2(c)
+    return np.round(np.real(c)/(c.shape[0] *c.shape[1] ))
+    
+def mean_two_mat(a,b):
+    b = b[::-1,::-1]
+    b = rotate(b, -1)
+    print(b) #delete
+    return mult_a_b(a,b)
+
+def neighborhood_mean_fft(img, neighborhood_key):
+    neighborhood = NEIGHBORHOODS[neighborhood_key]
+    neis = neighborhood[0]
+    weights =  neighborhood[1]
+    
+    mat_to_mult = np.zeros(img.shape)
+    for i in range(len(neis)):
+        mat_to_mult[neis[i][0], neis[i][1]] = weights[i]
+    return mean_two_mat(img,mat_to_mult)
+
+####################################################################
 def separation_func(img, cuttof):
     img_copy = np.copy(img)
     for row in range(img.shape[0]):
