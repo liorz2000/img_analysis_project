@@ -15,11 +15,19 @@ ins = "inspected"
 ref = "reference"
 
 neighbor_vectors_3x3 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
-neighbor_vectors_2X2 = [[-1,-1], [-1,0], [0,-1], [0,0]]
+neighbor_weights_3X3 = [1,1,1, 1,1,1, 1,1,1]
+neighbor_vectors_2X2 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
+neighbor_weights_2X2 = [0.25,0.5,0.25, 0.5,1,0.5, 0.25,0.5,0.25]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
-neighborhoods = {"3x3": neighbor_vectors_3x3, "2x2":neighbor_vectors_2X2, "plus": neighbor_vectors_plus}
-for name in neighborhoods:
-    neighborhoods[name] = np.array(neighborhoods[name], dtype = np.int32)
+neighbor_weights_plus = [1, 1, 1, 1,1]
+
+NEIGHBORHOODS = {"3x3": (neighbor_vectors_3x3,neighbor_weights_3X3)\
+"2x2":(neighbor_vectors_2X2,neighbor_weights_2X2),\
+"plus": (neighbor_vectors_plus,neighbor_weights_plus)}
+
+for name in NEIGHBORHOODS:
+    NEIGHBORHOODS[name][0] = np.array(NEIGHBORHOODS[name][0], dtype = np.int32)
+    NEIGHBORHOODS[name][1] = np.array(NEIGHBORHOODS[name][1], dtype = np.int32)
 
 def get_imgs(prev_path = "../"):
     """
@@ -249,7 +257,8 @@ def plot_0_pixel_as_255_for_proportion(img_arr):
         img[0][0] =255
     plot_imgs_arr(img_arr)
 
-def neighborhood_mean(img, neighborhood):
+def neighborhood_mean_old(img, neighborhood_key):
+    neighborhood = NEIGHBORHOODS[neighborhood_key][0]
     nrow, ncol = img.shape
     numerator = np.zeros((nrow, ncol))
     denumerator = np.zeros((nrow, ncol))
@@ -261,7 +270,6 @@ def neighborhood_mean(img, neighborhood):
                         denumerator[row][col] += 1
                         numerator[row][col] += img[row+neighbor[0]][col+neighbor[1]]
     return numerator/denumerator
-
 
 def separation_func(img, cuttof):
     img_copy = np.copy(img)
