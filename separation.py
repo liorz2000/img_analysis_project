@@ -6,13 +6,15 @@ import scipy
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from itertools import product
 
 neighbor_vectors_3x3 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
 neighbor_weights_3X3 = [1,1,1, 1,1,1, 1,1,1]
 neighbor_vectors_2X2 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
-neighbor_weights_2X2 = [1,2,1, 2,4,2, 1,2,1]
+neighbor_weights_2X2 = [0.25,0.5,0.25, 0.5,1,0.5, 0.25,0.5,0.25]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
 neighbor_weights_plus = [1, 1, 1, 1,1]
+
 
 NEIGHBORHOODS = {"3x3": [neighbor_vectors_3x3,neighbor_weights_3X3],\
 "2x2":[neighbor_vectors_2X2,neighbor_weights_2X2],\
@@ -20,7 +22,7 @@ NEIGHBORHOODS = {"3x3": [neighbor_vectors_3x3,neighbor_weights_3X3],\
 
 for name in NEIGHBORHOODS:
     NEIGHBORHOODS[name][0] = np.array(NEIGHBORHOODS[name][0], dtype = np.int32)
-    NEIGHBORHOODS[name][1] = np.array(NEIGHBORHOODS[name][1], dtype = np.int32)
+    NEIGHBORHOODS[name][1] = np.array(NEIGHBORHOODS[name][1], dtype = np.float64)
 
 def flatt_and_hist_mat(mat, hole_num):
     arr = np.ravel(mat)
@@ -67,7 +69,7 @@ def neighborhood_mean_old(img, neighborhood_key):
     return numerator/denumerator
 
 ####################################################################
-						# neighborhood_mean_fft #
+                        # neighborhood_mean_fft #
 ####################################################################
 def rotate(a, how_much):
     a_copy = np.copy(a)
@@ -91,7 +93,6 @@ def mult_a_b(a,b):
 def mean_two_mat(a,b):
     b = b[::-1,::-1]
     b = rotate(b, -1)
-    print(b) #delete
     return mult_a_b(a,b)
 
 def neighborhood_mean_fft(img, neighborhood_key):
@@ -105,9 +106,45 @@ def neighborhood_mean_fft(img, neighborhood_key):
     return mean_two_mat(img,mat_to_mult)
 
 ####################################################################
+def mean_imgsXneighborhoods(img_arr, neighborhood_keys):
+    res = []
+    for img in img_arr:
+        res.append({})
+        for key in neighborhood_keys:
+            res[-1][key] = neighborhood_mean_fft(img, key)
+    return res
+
+def abs_dicts_of_imgs(img_list_dicts):
+    res = []
+    for i in range(len(img_list_dicts)):
+        res.append({})
+        for key in img_list_dicts[i]:
+            res[-1][key] = abs(img_list_dicts[i][key])
+    return res
+
+
 def separation_func(img, cuttof):
+    max_img = max(img)
     img_copy = np.copy(img)
     for row in range(img.shape[0]):
         for col in range(img.shape[1]):
-            img_copy[row][col] = int(img_copy[row][col]>cuttof)
+            img_copy[row][col] = int(img_copy[row][col]>cuttof*max_img)
     return img_copy
+
+def separation_func(img, cuttof):
+    max_img = max([max(row) for row in img])
+    img_copy = np.copy(img)
+    for row in range(img.shape[0]):
+        for col in range(img.shape[1]):
+            img_copy[row][col] = int(img_copy[row][col]>cuttof*max_img)
+    return img_copy
+
+def separation_dicts_of_imgs(img_list_dicts, cuts = []):
+    res = []
+    for i in range(len(img_list_dicts)):
+        res.append({})
+        for key in img_list_dicts[i]:
+            res[-1][key] = {}
+            for cut in cuts:
+                res[-1][key][cut] = separation_func(img_list_dicts[i][key], cut)
+    return res
