@@ -49,11 +49,6 @@ def sub_all_imgs(imgs, do_abs = True):
             res.append(sub_imgs(case[0] , case[1], do_abs))
     return res
 
-def plot_0_pixel_as_255_for_proportion(img_arr):
-    for img in img_arr:
-        img[0][0] =255
-    plot_imgs_arr(img_arr)
-
 def neighborhood_mean_old(img, neighborhood_key):
     neighborhood = NEIGHBORHOODS[neighborhood_key][0]
     nrow, ncol = img.shape
