@@ -1,7 +1,7 @@
 from move_find import *
 from separation import *
 
-def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "the_three_given", means_arr = []):
+def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "the_three_given", means_arr = [], cuts = []):
 	"""
 	type value need to be one of those:
 		"normal": just do furie
@@ -28,7 +28,7 @@ def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "
 	correlations = find_correlations(cutted_imgs)
 	diff_means = mean_imgsXneighborhoods(diff_imgs , means_arr)
 	diff_means_abs = abs_dicts_of_imgs(diff_means)
-	diff_means_abs_separations = separation_dicts_of_imgs(diff_means_abs)
+	diff_means_abs_separations = separation_dicts_of_imgs(diff_means_abs, cuts)
 
 	dct = {"mults":mults, "move_vectors":move_vectors}
 	dct["imgs"] = imgs
@@ -42,3 +42,10 @@ def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "
 	dct["diff_means_abs_separations"] = diff_means_abs_separations
 
 	return dct
+
+def solution(img1, img2):
+	imgs = [[img1, img2]]
+	cut = 0.5
+	local_mean_type = "3x3"
+	dct = get_dict_of_the_proccess(imgs = imgs, means_arr = [local_mean_type], cuts = [cut])
+	return dct['diff_means_abs_separations'][0][local_mean_type][cut]
