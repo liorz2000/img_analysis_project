@@ -1,4 +1,5 @@
-from help_funcs import *
+from move_find import *
+from separation import *
 
 def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "the_three_given", means_arr = []):
 	"""
