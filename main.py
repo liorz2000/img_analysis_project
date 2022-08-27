@@ -26,11 +26,19 @@ def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "
 	diff_imgs = sub_all_imgs(cutted_imgs, False)
 	diff_abs_imgs = sub_all_imgs(cutted_imgs)
 	correlations = find_correlations(cutted_imgs)
+	diff_means = mean_imgsXneighborhoods(diff_imgs , means_arr)
+	diff_means_abs = abs_dicts_of_imgs(diff_means)
+	diff_means_abs_separations = separation_dicts_of_imgs(diff_means_abs)
 
 	dct = {"mults":mults, "move_vectors":move_vectors}
+	dct["imgs"] = imgs
 	dct["cutted_imgs"] = cutted_imgs
 	dct["diff_imgs"] = diff_imgs
 	dct["diff_abs_imgs"] = diff_abs_imgs
 	dct["correlations"] = correlations
 	dct["move_search"] = move_search
+	dct["diff_means"] = diff_means
+	dct["diff_means_abs"] = diff_means_abs
+	dct["diff_means_abs_separations"] = diff_means_abs_separations
+
 	return dct
