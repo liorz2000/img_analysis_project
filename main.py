@@ -1,6 +1,6 @@
 from help_funcs import *
 
-def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "the_three_given"):
+def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "the_three_given", means_arr = []):
 	"""
 	type value need to be one of those:
 		"normal": just do furie
