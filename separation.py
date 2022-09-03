@@ -9,11 +9,11 @@ import matplotlib.pyplot as plt
 from itertools import product
 
 neighbor_vectors_3x3 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
-neighbor_weights_3X3 = [1,1,1, 1,1,1, 1,1,1]
+neighbor_weights_3X3 = [1/9,1/9,1/9, 1/9,1/9,1/9, 1/9,1/9,1/9]
 neighbor_vectors_2X2 = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,0], [0,1], [1,-1], [1,0], [1,1]]
-neighbor_weights_2X2 = [0.25,0.5,0.25, 0.5,1,0.5, 0.25,0.5,0.25]
+neighbor_weights_2X2 = [1/16,1/8,1/16, 1/8,1/4,1/8, 1/16,1/8,1/16]
 neighbor_vectors_plus = [[-1,0], [0,-1], [0,0], [0,1],[1,0]]
-neighbor_weights_plus = [1, 1, 1, 1,1]
+neighbor_weights_plus = [1/5, 1/5, 1/5, 1/5, 1/5]
 
 
 NEIGHBORHOODS = {"3x3": [neighbor_vectors_3x3,neighbor_weights_3X3],\
