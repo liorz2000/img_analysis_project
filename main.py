@@ -50,7 +50,7 @@ def get_dict_of_the_proccess(prev_path = "../", move_search = "normal", imgs = "
 
 def solution(img1, img2):
 	imgs = [[img1, img2]]
-	cut = 0.5
+	cut = 84
 	local_mean_type = "3x3"
-	dct = get_dict_of_the_proccess(imgs = imgs, means_arr = [local_mean_type], cuts = [cut])
-	return dct['diff_means_abs_separations_relative'][0][local_mean_type][cut]
+	dct = get_dict_of_the_proccess(imgs = imgs, means_arr = [local_mean_type], cuts_a = [cut])
+	return dct['diff_means_abs_separations_absolute'][0][local_mean_type][cut]
