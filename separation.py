@@ -25,6 +25,14 @@ for name in NEIGHBORHOODS:
     NEIGHBORHOODS[name][1] = np.array(NEIGHBORHOODS[name][1], dtype = np.float64)
 
 def flatt_and_hist_mat(mat, hole_num):
+    """
+    @mat (np.matrix):
+    @hole_num (int):
+
+    @plot: histogram of mat value.
+
+    @return: the histogram of mat value.
+    """
     arr = np.ravel(mat)
     plt.hist(arr, hole_num)
     plt.show()
