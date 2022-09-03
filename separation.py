@@ -126,28 +126,30 @@ def abs_dicts_of_imgs(img_list_dicts):
     return res
 
 
-def separation_func(img, cuttof):
-    max_img = max(img)
-    img_copy = np.copy(img)
-    for row in range(img.shape[0]):
-        for col in range(img.shape[1]):
-            img_copy[row][col] = int(img_copy[row][col]>cuttof*max_img)
-    return img_copy
-
-def separation_func(img, cuttof):
+def separation_func(img, cuttof, is_relative = False):
     max_img = max([max(row) for row in img])
     img_copy = np.copy(img)
+    if is_relative:
+        absolute_cuttof = cuttof*max_img
+    else:
+        absolute_cuttof = cuttof
     for row in range(img.shape[0]):
         for col in range(img.shape[1]):
-            img_copy[row][col] = int(img_copy[row][col]>cuttof*max_img)
+            img_copy[row][col] = int(img_copy[row][col]>absolute_cuttof)
     return img_copy
 
-def separation_dicts_of_imgs(img_list_dicts, cuts = []):
-    res = []
+def separation_dicts_of_imgs(img_list_dicts, cuts_relative = [], cuts_absolute = []):
+    res_relative = []
+    res_absolute = []
     for i in range(len(img_list_dicts)):
-        res.append({})
+        res_relative.append({})
+        res_absolute.append({})
         for key in img_list_dicts[i]:
-            res[-1][key] = {}
-            for cut in cuts:
-                res[-1][key][cut] = separation_func(img_list_dicts[i][key], cut)
-    return res
+            res_relative[-1][key] = {}
+            res_absolute[-1][key] = {}
+            for cut in cuts_relative:
+                res_relative[-1][key][cut] = separation_func(img_list_dicts[i][key], cut, True)
+            for cut in cuts_absolute:
+                res_absolute[-1][key][cut] = separation_func(img_list_dicts[i][key], cut, False)
+
+    return (res_relative, res_absolute) 
