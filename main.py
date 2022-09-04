@@ -99,3 +99,5 @@ def solution(img1, img2):
 	local_mean_type = "3x3"
 	dct = get_dict_of_the_proccess(imgs = imgs, means_arr = [local_mean_type], cuts_a = [cut])
 	return dct["diff_means_abs_separations_absolute_con"][0][local_mean_type][cut]
+
+# The submition 4/9/22 #
